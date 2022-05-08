@@ -24,7 +24,7 @@ private:
         size_t id;
 
         size_t index;
-        std::vector<Vertex *> neighbors;
+        std::vector<size_t> neigh_index; // indices of the neigh_index;
         // std::vector<Edge> edges;
 
         // pretty sure these are used during traversal.
@@ -34,7 +34,28 @@ private:
         // &Edge find edge(Vertex destination) // returns an edge with this being point a and destination point b
 
         // vertex constructor
-        Vertex(size_t i, size_t in, size_t d = std::numeric_limits<int>::max(), bool v = false, Vertex *p = nullptr) : id(i), index(in), visited(v), distance(d), previous(p) {}
+        Vertex(size_t i, size_t in, size_t d = std::numeric_limits<int>::max(), bool v = false) : id(i), index(in), neigh_index(), visited(v), distance(d), previous(nullptr) {}
+        // Vertex(Vertex &other) : id(other.id), index(other.index), neigh_index(other.neigh_index), visited(other.visited), distance(other.distance), previous(other.previous) {}
+
+        // Vertex &operator=(const Vertex &other)
+        // {
+        //     if (this != &other)
+        //     {
+        //         id = other.id;
+        //         index = other.index;
+        //         neigh_index = other.neigh_index;
+        //         visited = other.visited;
+        //         distance = other.distance;
+        //         previous = nullptr; // look  at this later
+        //     }
+        //     return *this;
+        // }
+
+        ~Vertex()
+        {
+            previous = nullptr;
+            neigh_index.clear();
+        }
     };
 
     // Struct for an edge
@@ -53,17 +74,18 @@ private:
     */
 
     // unordered set to keep count of vertices presenent
-    std::unordered_set<size_t> id_set; // using this so when using contains we could easly check if its in the set. Each id will be unique
+    std::unordered_set<size_t> id_set{}; // using this so when using contains we could easly check if its in the set. Each id will be unique
     // List of some sort to hold the vertices in the graph
-    std::vector<Vertex *> vertices;
+    std::vector<Vertex *> vertices{};
 
     // Maybe add -
-    std::vector<std::vector<size_t>> weights;
+    std::vector<std::vector<size_t>> weights{};
     /*0
     0 0
     */
     size_t v_count; // vertex count
     size_t e_count; // edge count
+
     size_t find_vertex_index(size_t id) const
     {
         for (Vertex *v : vertices)
@@ -80,22 +102,7 @@ public:
     // Task 1
     // start
     Graph() : v_count(0), e_count(0){};
-    Graph(const Graph &other)
-    {
-        if (other.vertices.size() == 0)
-        {
-            this->v_count = 0;
-            this->e_count = 0;
-            return;
-        }
-        this->id_set = other.id_set;
-        this->vertices = other.vertices;
-        this->weights = other.weights;
-        this->v_count = other.v_count;
-        this->e_count = other.e_count;
-
-        // need to think more but this is where
-    };
+    Graph(const Graph &other) : id_set(other.id_set), vertices(other.vertices), weights(other.weights), v_count(other.v_count), e_count(other.e_count){};
     Graph &operator=(const Graph &other)
     {
         if (this != &other)
@@ -163,7 +170,7 @@ public:
         std::vector<size_t> newRow(v_count + 1);
         weights.emplace_back(newRow);
         id_set.insert(id);
-        
+
         for (size_t i = 0; i < weights.size() - 1; i++)
         {
             weights[i].resize(v_count + 1);
@@ -182,46 +189,54 @@ public:
         size_t src_i = find_vertex_index(src);
         size_t dest_i = find_vertex_index(src);
         weights[src_i][dest_i] = weight;
+        // add neighbhor to both vertices
+
         return true;
     }
 
-    bool remove_vertex(size_t id) {
-        if (!contains_vertex(id)) {
+    bool remove_vertex(size_t id)
+    {
+        if (!contains_vertex(id))
+        {
             return false;
         }
         size_t index = find_vertex_index(id);
         id_set.erase(id_set.find(id));
 
-    
-        Vertex* del = std::move(vertices[index]);
+        Vertex *del = std::move(vertices[index]);
         delete del;
 
-        for (size_t i = index; i < vertices.size()-1; i++) {
-            vertices[i] = std::move(vertices[i+1]);
-            vertices[i]->index = vertices[i]->index - 1; 
+        for (size_t i = index; i < vertices.size() - 1; i++)
+        {
+            vertices[i] = std::move(vertices[i + 1]);
+            vertices[i]->index = vertices[i]->index - 1;
+            // remove neighbor if exists
         }
         vertices.pop_back();
         weights.pop_back();
-        
-        for (size_t i = 0; i < weights.size(); i++) {
+
+        for (size_t i = 0; i < weights.size(); i++)
+        {
             auto remove = weights[i].begin() + index;
             weights[i].erase(remove);
         }
-        
+
         v_count--;
         return true;
     }
-    
-    bool remove_edge(size_t src, size_t dest){
-        if(!contains_edge(src, dest)){
+
+    bool remove_edge(size_t src, size_t dest)
+    {
+        if (!contains_edge(src, dest))
+        {
             return false;
         }
         size_t src_i = find_vertex_index(src);
         size_t dest_i = find_vertex_index(dest);
-        
+
         weights[src_i][dest_i] = 0;
         e_count--;
-        return true;        
+        return true;
     };
 
     // Task 2
