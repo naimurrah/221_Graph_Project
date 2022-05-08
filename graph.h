@@ -190,6 +190,7 @@ public:
         size_t dest_i = find_vertex_index(src);
         weights[src_i][dest_i] = weight;
         // add neighbhor to both vertices
+        e_count++;
 
         return true;
     }
