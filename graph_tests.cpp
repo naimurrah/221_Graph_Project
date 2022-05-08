@@ -55,6 +55,16 @@ int main()
     }
     **/
     // TODO(student): implement graph tests
+    G.print_tree();
+    G.remove_vertex(1);
+    G.remove_vertex(6);
+    G.print_tree();
 
+    Graph G2(G);
+    G2.add_vertex(1);
+    G2.print_tree();
+    G.print_tree();
+    Graph G3 = G2;
+    G3.print_tree();
     return 0;
 }
