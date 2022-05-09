@@ -5,10 +5,10 @@
 using std::cout, std::endl;
 
 int main()
-{
+{ 
     std::cout << "make an empty digraph" << std::endl;
     Graph G;
-
+    
     std::cout << "add vertices" << std::endl;
     for (size_t n = 1; n <= 7; n++)
     {
@@ -31,6 +31,8 @@ int main()
 
     std::cout << "G has " << G.vertex_count() << " vertices" << std::endl;
     std::cout << "G has " << G.edge_count() << " edges" << std::endl;
+    std::cout << "Contains Edge? " << G.contains_edge(1,2) << std::endl;
+    std::cout << "Contains Edge? " << G.contains_edge(3,1)  << std::endl;
     std::cout << std::endl;
     
     std::cout << "compute mst path from 2" <<std::endl;
@@ -44,7 +46,7 @@ int main()
     }
     std::cout << std::endl;
     
-    
+    /*
     std::cout << "compute shortest path from 2" <<std::endl;
     G.dijkstra(2);
 
@@ -54,10 +56,12 @@ int main()
         std::cout << "  ";
         G.print_shortest_path(n);
     }
-   
+    */
+    
     // TODO(student): implement graph tests
     G.print_tree();
     G.remove_vertex(1);
+    std::cout << "Contains Edge? " << G.contains_edge(1,2) << std::endl;
     G.remove_vertex(6);
     G.print_tree();
 
@@ -67,5 +71,7 @@ int main()
     G.print_tree();
     Graph G3 = G2;
     G3.print_tree();
+    
     return 0;
+    
 }

@@ -8,80 +8,94 @@
 #include <iostream>
 #include <queue>
 
-#include <sstream>
-class Graph
-{
+#include <vector>
+class Graph {
 private:
-
-    struct Vertex
-    {
-        /*
-        each verte holds a value
-        a vertex knows its neighbours, to do this, use a vector<Vertex>
-        a vertex also has an edge, and an edge is simple a source and a destination
-        */
+    struct Vertex {
         size_t id;
         size_t index;
 
+        double distance;
         bool visited;
-        size_t distance;
 
-        Vertex *previous;
+        Vertex* previous;
 
-        // vertex constructor
-        Vertex(size_t i, size_t in, size_t d = std::numeric_limits<int>::max(), bool v = false) : id(i), index(in), visited(v), distance(d), previous(nullptr) {}
-        Vertex(const Vertex& other) : id(other.id), index(other.id), visited(other.visited), distance(other.distance), previous(other.previous) {}
+        Vertex(size_t id, size_t index, double distance, bool visited) : id(id), index(index), distance(distance), visited(visited) {}
+        Vertex(size_t id, size_t index): id(id), index(index) {
+            distance = INFINITY;
+            visited = false;
+            previous = nullptr;
+        }
+        Vertex(const Vertex& other): id(other.id), index(other.index), distance(other.distance), visited(other.visited) {}
+
         ~Vertex() {
             previous = nullptr;
             delete this;
         }
     };
 
+    std::vector<std::vector<double>> weights;
+    std::unordered_set<size_t> id_set{};
+    std::vector<Vertex*> vertices;
 
-    // unordered set to keep count of vertices presenent
-    std::unordered_set<size_t> id_set{}; // using this so when using contains we could easly check if its in the set. Each id will be unique
-    // List of some sort to hold the vertices in the graph
-    std::vector<Vertex*> vertices{};
-
-    // Maybe add -
-    std::vector<std::vector<size_t>> weights{};
     size_t v_count; // vertex count
-    size_t e_count; // edge count
+    size_t e_count;
 
-    size_t find_vertex_index(size_t id) const
-    {
-        for (Vertex *v : vertices)
-        {
-            if (v->id == id)
-            {
-                return v->index;
+    // helpers
+    size_t find_vertex_index(size_t id) const {
+        size_t i = 0;
+        for (Vertex* v: vertices) {
+            if (v->id == id) {
+                return i;
             }
+            i++;
         }
-        throw std::invalid_argument("id not in vertices (find_vertex_index)");
+        return vertices.size()+1;
     }
 
     void reset_vertices() {
         for (size_t i = 0; i < v_count; i++) {
-            vertices[i]->distance = std::numeric_limits<int>::max();
+            vertices[i]->distance = INFINITY;
             vertices[i]->visited = false;
             vertices[i]->previous = nullptr;
         }
     }
 
+    size_t count_edge(size_t id) {
+        size_t src_id = find_vertex_index(id);
+        size_t num = 0;
+        for (size_t i = 0; i < v_count; i++) {
+            if (weights[src_id][i] != 0) {
+                num++;
+            }
+            if (weights[i][src_id] != 0) {
+                num++;
+            }
+        }
+
+        return num;
+    }
+
+    bool any_unvisited(){
+        for(Vertex* v : vertices){
+            if(!v->visited){
+                return true;
+            }
+        }
+        return false;
+    }
 public:
     // Task 1
-    // start
-    Graph() : v_count(0), e_count(0) {}
-
-    Graph(const Graph &other) : id_set(other.id_set), weights(other.weights), v_count(other.v_count), e_count(other.e_count) {
+    Graph(): v_count(0), e_count(0) {}
+    Graph(const Graph& other): v_count(other.v_count), e_count(other.e_count) {
+        weights = other.weights;
         for (Vertex* v: other.vertices) {
             vertices.push_back(v);
         }
     }
-    
-    Graph &operator=(const Graph &other) {
-        if (this != &other)
-        {
+
+    Graph& operator=(const Graph& other) {
+        if (this != &other) {
             this->id_set = other.id_set;
             this->vertices.clear();
             for (Vertex* v: other.vertices) {
@@ -90,85 +104,75 @@ public:
             this->weights = other.weights;
             this->v_count = other.v_count;
             this->e_count = other.e_count;
+
         }
         return *this;
     }
-
-    ~Graph()
-    {
-        id_set.clear();
-        vertices.clear();
+    ~Graph() {
         weights.clear();
-        v_count = 0;
-        e_count = 0;
-    };
+        vertices.clear();
+    }
 
-    size_t vertex_count() const
-    {
+    size_t vertex_count() const {
         return v_count;
-    };
-    size_t edge_count() const
-    {
+    }
+    size_t edge_count() const {
         return e_count;
-    };
+    }
 
-    bool contains_vertex(size_t id) const
-    {
+    bool contains_vertex(size_t id) const {
         return !(id_set.find(id) == id_set.end());
     }
 
-    bool contains_edge(size_t src, size_t dest) const
-    {
+    bool contains_edge(size_t src, size_t dest) const {
         size_t src_i = find_vertex_index(src);
         size_t dest_i = find_vertex_index(dest);
+
+        if (src_i >= vertices.size() || dest_i >= vertices.size()) {
+            return false;
+        }
 
         return weights[src_i][dest_i] != 0;
     }
 
-    double cost(size_t src, size_t dest) const
-    { 
+    double cost(size_t src, size_t dest) const {
+        if (!contains_edge(src, dest)) {
+            return INFINITY;
+        }
         size_t src_i = find_vertex_index(src);
         size_t dest_i = find_vertex_index(dest);
-        if (weights[src_i][dest_i] == 0)
-            return std::numeric_limits<int>::max();
         return weights[src_i][dest_i];
-    };
+    }
 
-    /*0 1
-    0 0 0
-    1 2 0
-    */
-    bool add_vertex(size_t id)
-    {
-
+    bool add_vertex(size_t id) {
         if (contains_vertex(id)) {
             return false;
         }
 
-        Vertex *new_vertex = new Vertex(id, v_count);
+        Vertex* new_vertex = new Vertex(id, v_count);
         vertices.emplace_back(new_vertex);
-
-        std::vector<size_t> newRow(v_count + 1);
+        std::vector<double> newRow(v_count + 1);
         weights.emplace_back(newRow);
-
         id_set.insert(id);
-
+        
         for (size_t i = 0; i < weights.size() - 1; i++) {
             weights[i].resize(v_count + 1);
         }
-
         v_count++;
         return true;
     }
 
-    bool add_edge(size_t src, size_t dest, double weight = 1) {
+    bool add_edge(size_t src, size_t dest, double weight=1) {
         if (contains_edge(src, dest)) {
             return false;
         }
+
         size_t src_i = find_vertex_index(src);
         size_t dest_i = find_vertex_index(dest);
+        if (src_i >= v_count || dest_i >= v_count) {
+            return false;
+        }
 
-        // std::cout << "add edge source index: " <<src_i << " add edge dest index: " << dest_i << std::endl;
         weights[src_i][dest_i] = weight;
         e_count++;
 
@@ -179,61 +183,68 @@ public:
         if (!contains_vertex(id)) {
             return false;
         }
+        size_t num_e = count_edge(id);
         size_t index = find_vertex_index(id);
         id_set.erase(id_set.find(id));
-        
-        //Vertex *del = std::move(vertices[index]);
         for (size_t i = index; i < vertices.size() - 1; i++) {
+            weights[i] = weights[i+1];
             vertices[i] = std::move(vertices[i + 1]);
-            vertices[i]->index = vertices[i]->index - 1;
+            vertices[i]->index = i;
         }
-        //std::cout << "Check1" <<std::endl;
         vertices.pop_back();
         weights.pop_back();
-
         for (size_t i = 0; i < weights.size(); i++) {
             auto remove = weights[i].begin() + index;
             weights[i].erase(remove);
         }
-
-        v_count--;  
+        v_count--;
+        e_count-= num_e;
+        
         return true;
     }
 
-    bool remove_edge(size_t src, size_t dest)
-    {
-        if (!contains_edge(src, dest))
+    bool remove_edge(size_t src, size_t dest){
+        if(!contains_edge(src, dest)){
+            return false;
+        }
+
+        size_t src_i = find_vertex_index(src);
+        size_t dest_i = find_vertex_index(dest);
+        if (src_i >= vertices.size() || dest_i >= vertices.size())
         {
             return false;
         }
-        size_t src_i = find_vertex_index(src);
-        size_t dest_i = find_vertex_index(dest);
 
         weights[src_i][dest_i] = 0;
         e_count--;
         return true;
+        
     };
 
-    // Task 2 - remember to set everything like distamce amdn visited to default value
-    size_t minimum_weight() const {
-        size_t minimum = std::numeric_limits<int>::max();
-        size_t minimum_index = 0;
-        for (size_t i = 0; i < v_count; i++) {
-            if (vertices[i]->visited == false && vertices[i]->distance < minimum) {
-                minimum = vertices[i]->distance;
-                minimum_index = i;
+    // Task 2
+
+    size_t min_weight() const {
+        double min = INFINITY;
+        size_t min_index = 0;
+        for(size_t i = 0; i < v_count; i++){
+            if (vertices.at(i)->visited == false && vertices.at(i)->distance < min) {
+                min = vertices[i]->distance;
+                min_index = i;
             }
         }
-        return minimum_index;
+        return min_index;
     }
 
     void prim(size_t source_id) {
+        if(!contains_vertex(source_id)){
+            return;
+        }
         reset_vertices();
         size_t index_first = find_vertex_index(source_id);
         vertices[index_first]->distance = 0;
 
         for (size_t i = 0; i < v_count-1; i++) {
-            size_t ind_a = minimum_weight();
+            size_t ind_a = min_weight();
 
             vertices[ind_a]->visited = true;
 
@@ -245,18 +256,22 @@ public:
             }
         }
     }
-
-    bool is_path(size_t id) const {
+    bool is_path(size_t id) const{
         size_t index = find_vertex_index(id);
-        return vertices[index]->distance != std::numeric_limits<int>::max();
+        if(index >= vertices.size()){
+            return false;
+        }
+        return vertices.at(index)->distance != INFINITY;
+
     }
 
-    void print_path(size_t dest_id, std::ostream &os = std::cout) const {
+    void print_path(size_t dest_id, std::ostream& os=std::cout) const {
+        /*
         if (!is_path(dest_id)) {
             os << "<no path>\n";
             return;
         }
-
+        
         size_t dest_id_index = find_vertex_index(dest_id);
         Vertex* curr = vertices[dest_id_index];
         size_t tot_dist = 0;
@@ -274,54 +289,56 @@ public:
         }
         tot_dist += vertices[pathway[0]]->distance;
         os << vertices[pathway[0]]->id << std::endl;
+        */
     }
 
     // Task 3
-    bool any_unvisited() {
-        for (size_t i = 0; i < v_count; i++) {
-            if (vertices[i]->visited == false) {
-                return true;
-            }
+   
+    void dijkstra(size_t source_id){
+        /**
+        if(!contains_vertex(source_id)){
+            return;
         }
-        return false;
-    }
 
-    void dijkstra(size_t source_id) {
         reset_vertices();
         size_t src_i = find_vertex_index(source_id);
-        Vertex* v = vertices[src_i];
-        Vertex* w;
+        Vertex *v = vertices[src_i];
+        Vertex *w;
         v->distance = 0;
-        while (any_unvisited()) {
+        while (any_unvisited())
+        {
             v->visited = true;
-            for (size_t i = 0; i < v_count; i++) {
+            for (size_t i = 0; i < v_count; i++)
+            {
                 w = vertices[i];
-                if (vertices[i]->visited == false && weights[v->index][i] > 0) {
+                if (vertices[i]->visited == false && weights[v->index][i] > 0)
+                {
                     size_t dist_vw = weights[v->index][i];
-                    if (v->distance + dist_vw < w->distance) {
+                    if (v->distance + dist_vw < w->distance)
+                    {
                         w->distance = v->distance + dist_vw;
                         w->previous = v;
                     }
                 }
             }
-            
-            v = vertices[minimum_weight()];
+
+            v = vertices[min_weight()];
         }
-
-        
+        **/
     }
-
+    
     double distance(size_t id) const {
         if (!contains_vertex(id)) {
-            return (double) std::numeric_limits<int>::max();
+            return INFINITY;
         }
         size_t index = find_vertex_index(id);
         Vertex* curr = vertices[index];
-        double tot_dist = (double) curr->distance;
+        double tot_dist = curr->distance;
         return tot_dist;
     }
 
-    void print_shortest_path(size_t dest_id, std::ostream &os = std::cout) const {
+    void print_shortest_path(size_t dest_id, std::ostream& os=std::cout) const {
+        /*
         if (distance(dest_id) == (double) std::numeric_limits<int>::max()) {
             os << "<no path>\n";
             return;
@@ -338,10 +355,12 @@ public:
             os << vertices[pathway[i]]->id << " --> ";
         }
         os << vertices[pathway[0]]->id << " distance: " << vertices[pathway[0]]->distance << std::endl;
+        */
     }
-
+    
     // helper
     void print_tree() {
+
         std::cout << "Vertices: ";
         for (size_t i = 0; i < vertices.size(); i++) {
             std::cout << vertices[i]->id << " ";
@@ -357,4 +376,4 @@ public:
     }
 };
 
-#endif // GRAPH_H
+#endif  // GRAPH_H
