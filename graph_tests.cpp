@@ -44,9 +44,9 @@ int main()
     }
     std::cout << std::endl;
     
-    /**
-    // std::cout << "compute shortest path from 2" <<std::endl;
-    // G.dijkstra(2);
+    
+    std::cout << "compute shortest path from 2" <<std::endl;
+    G.dijkstra(2);
 
     std::cout << "print shortest paths" <<std::endl;
     for (size_t n = 1; n <= 7; n++) {
@@ -54,7 +54,7 @@ int main()
         std::cout << "  ";
         G.print_shortest_path(n);
     }
-    **/
+   
     // TODO(student): implement graph tests
     G.print_tree();
     G.remove_vertex(1);

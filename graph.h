@@ -59,21 +59,27 @@ private:
         }
         throw std::invalid_argument("id not in vertices (find_vertex_index)");
     }
-    size_t index_last_vertex_prim;
+
+    void reset_vertices() {
+        for (size_t i = 0; i < v_count; i++) {
+            vertices[i]->distance = std::numeric_limits<int>::max();
+            vertices[i]->visited = false;
+            vertices[i]->previous = nullptr;
+        }
+    }
+
 public:
     // Task 1
     // start
     Graph() : v_count(0), e_count(0) {}
 
-    // change
     Graph(const Graph &other) : id_set(other.id_set), weights(other.weights), v_count(other.v_count), e_count(other.e_count) {
         for (Vertex* v: other.vertices) {
             vertices.push_back(v);
         }
     }
     
-    Graph &operator=(const Graph &other)
-    { // change
+    Graph &operator=(const Graph &other) {
         if (this != &other)
         {
             this->id_set = other.id_set;
@@ -86,7 +92,8 @@ public:
             this->e_count = other.e_count;
         }
         return *this;
-    };
+    }
+
     ~Graph()
     {
         id_set.clear();
@@ -119,10 +126,12 @@ public:
     }
 
     double cost(size_t src, size_t dest) const
-    { // change
-        if (weights[src][dest] == 0)
+    { 
+        size_t src_i = find_vertex_index(src);
+        size_t dest_i = find_vertex_index(dest);
+        if (weights[src_i][dest_i] == 0)
             return std::numeric_limits<int>::max();
-        return weights[src][dest];
+        return weights[src_i][dest_i];
     };
 
     /*0 1
@@ -205,7 +214,7 @@ public:
         return true;
     };
 
-    // Task 2
+    // Task 2 - remember to set everything like distamce amdn visited to default value
     size_t minimum_weight() const {
         size_t minimum = std::numeric_limits<int>::max();
         size_t minimum_index = 0;
@@ -219,6 +228,7 @@ public:
     }
 
     void prim(size_t source_id) {
+        reset_vertices();
         size_t index_first = find_vertex_index(source_id);
         vertices[index_first]->distance = 0;
 
@@ -263,13 +273,71 @@ public:
             os << vertices[pathway[i]]->id << " --> ";
         }
         tot_dist += vertices[pathway[0]]->distance;
-        os << vertices[pathway[0]]->id << " distance: " << tot_dist << std::endl;
+        os << vertices[pathway[0]]->id << std::endl;
     }
 
     // Task 3
-    void dijkstra(size_t source_id);
-    double distance(size_t id) const;
-    void print_shortest_path(size_t dest_id, std::ostream &os = std::cout) const;
+    size_t next_unvisited_index() {
+        for (size_t i = 0; i < v_count; i++) {
+            if (vertices[i]->visited == false) {
+                return i;
+            }
+        }
+        return std::numeric_limits<int>::max();
+    }
+    
+    void dijkstra(size_t source_id) {
+        reset_vertices();
+        size_t src_i = find_vertex_index(source_id);
+        Vertex* v = vertices[src_i];
+        Vertex* w;
+        v->distance = 0;
+        while (v->visited == false) {
+            v->visited = true;
+            for (size_t i = 0; i < v_count; i++) {
+                w = vertices[i];
+                if (vertices[i]->visited == false && weights[v->index][i] > 0) {
+                    size_t dist_vw = weights[v->index][i];
+                    if (v->distance + dist_vw < w->distance) {
+                        w->distance = v->distance + dist_vw;
+                        w->previous = v;
+                    }
+                }
+            }
+            v = vertices[next_unvisited_index()];
+        }
+
+        
+    }
+
+    double distance(size_t id) const {
+        if (!contains_vertex(id)) {
+            return (double) std::numeric_limits<int>::max();
+        }
+        size_t index = find_vertex_index(id);
+        Vertex* curr = vertices[index];
+        double tot_dist = (double) curr->distance;
+        return tot_dist;
+    }
+
+    void print_shortest_path(size_t dest_id, std::ostream &os = std::cout) const {
+        if (distance(dest_id) == (double) std::numeric_limits<int>::max()) {
+            os << "<no path>\n";
+            return;
+        }
+        size_t index = find_vertex_index(dest_id);
+        Vertex* curr = vertices[index];
+        std::vector<size_t> pathway;
+        while (curr) {
+            pathway.push_back(curr->index);
+            curr = curr->previous;
+        }
+
+        for (size_t i = pathway.size()-1; i > 0; i--) {
+            os << vertices[pathway[i]]->id << " --> ";
+        }
+        os << vertices[pathway[0]]->id << " distance: " << vertices[pathway[0]]->distance << std::endl;
+    }
 
     // helper
     void print_tree() {
