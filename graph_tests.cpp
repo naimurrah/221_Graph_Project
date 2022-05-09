@@ -69,12 +69,15 @@ int main()
     Graph G2(G);
     G2.add_vertex(1);
     G.print_tree();
-    /*
+    
     G2.print_tree();
+    std::cout << "Contains 1? " << G2.contains_vertex(1);
+    std::cout << "Contains 2? " << G2.contains_vertex(2);
+    std::cout << "Contains 6? " << G2.contains_vertex(6) << std::endl;
     G.print_tree();
     Graph G3 = G2;
     G3.print_tree();
-    **/
+    
     return 0;
     
 }
