@@ -32,9 +32,9 @@ int main()
     std::cout << "G has " << G.vertex_count() << " vertices" << std::endl;
     std::cout << "G has " << G.edge_count() << " edges" << std::endl;
     std::cout << std::endl;
-    /**
-    // std::cout << "compute mst path from 2" <<std::endl;
-    // G.prim(2);
+    
+    std::cout << "compute mst path from 2" <<std::endl;
+    G.prim(2);
 
     std::cout << "print minimum spanning paths" <<std::endl;
     for (size_t n = 1; n <= 7; n++) {
@@ -43,7 +43,8 @@ int main()
         G.print_path(n);
     }
     std::cout << std::endl;
-
+    
+    /**
     // std::cout << "compute shortest path from 2" <<std::endl;
     // G.dijkstra(2);
 
