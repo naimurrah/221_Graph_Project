@@ -277,22 +277,22 @@ public:
     }
 
     // Task 3
-    size_t next_unvisited_index() {
+    bool any_unvisited() {
         for (size_t i = 0; i < v_count; i++) {
             if (vertices[i]->visited == false) {
-                return i;
+                return true;
             }
         }
-        return std::numeric_limits<int>::max();
+        return false;
     }
-    
+
     void dijkstra(size_t source_id) {
         reset_vertices();
         size_t src_i = find_vertex_index(source_id);
         Vertex* v = vertices[src_i];
         Vertex* w;
         v->distance = 0;
-        while (v->visited == false) {
+        while (any_unvisited()) {
             v->visited = true;
             for (size_t i = 0; i < v_count; i++) {
                 w = vertices[i];
@@ -304,7 +304,8 @@ public:
                     }
                 }
             }
-            v = vertices[next_unvisited_index()];
+            
+            v = vertices[minimum_weight()];
         }
 
         

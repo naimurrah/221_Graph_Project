@@ -10,7 +10,7 @@ memory_errors: graph_memory_errors
 compile_test: graph_compile_test
 
 $(objects): %: clean %.h %_tests.cpp
-	g++ $(CXXFLAGS) --coverage $@_tests.cpp && ./a.out && gcov -mr $@_tests.cpp
+	g++ $(CXXFLAGS) --coverage $@_tests.cpp && ./a.out && gcov -a $@_tests.cpp
 
 graph_memory_errors: %_memory_errors: clean %.h %_tests.cpp
 	g++ $(CXXFLAGS) graph_tests.cpp && valgrind --leak-check=full ./a.out
