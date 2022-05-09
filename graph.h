@@ -32,7 +32,6 @@ private:
     };
 
     std::vector<std::vector<double>> weights;
-    std::unordered_set<size_t> id_set{};
     std::vector<Vertex> vertices;
 
     size_t v_count; // vertex count
@@ -92,8 +91,6 @@ public:
 
     Graph& operator=(const Graph& other) {
         if (this != &other) {
-            id_set.clear();
-            id_set = other.id_set;
             vertices = other.vertices;
             weights = other.weights;
             v_count = other.v_count;
@@ -103,14 +100,8 @@ public:
     }
     ~Graph() {
         reset_vertices();
-        // std::cout <<"DELETE ";
-        // print_tree();
-        // for (size_t i = 0; i < v_count; i++) {
-        //     vertices.erase(vertices.begin());
-        // }
 
         vertices.clear();
-        id_set.clear();
         weights.clear();
         e_count = 0;
         v_count = 0;
@@ -124,7 +115,12 @@ public:
     }
 
     bool contains_vertex(size_t id) const {
-        return !(id_set.find(id) == id_set.end());
+        for (Vertex v: vertices) {
+            if (v.id == id) {
+                return true;
+            }
+        }
+        return false;
     }
 
     bool contains_edge(size_t src, size_t dest) const {
@@ -156,7 +152,6 @@ public:
         
         std::vector<double> newRow(v_count + 1);
         weights.push_back(newRow);
-        id_set.insert(id);
         for (size_t i = 0; i < weights.size() - 1; i++) {
             weights[i].resize(v_count + 1);
         }
@@ -187,7 +182,6 @@ public:
         }
         size_t num_e = count_edge(id);
         size_t index = find_vertex_index(id);
-        id_set.erase(id_set.find(id));
 
         vertices.erase(vertices.begin()+index);
         
