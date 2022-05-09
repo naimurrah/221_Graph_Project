@@ -170,10 +170,6 @@ public:
 
         // std::cout << "add edge source index: " <<src_i << " add edge dest index: " << dest_i << std::endl;
         weights[src_i][dest_i] = weight;
-<<<<<<< HEAD
-        // add neighbhor to both vertices
-=======
->>>>>>> 556f23d20586496bf00a47dcd80c1dfa3d157104
         e_count++;
 
         return true;
