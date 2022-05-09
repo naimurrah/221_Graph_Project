@@ -1,3 +1,13 @@
+/*****************************************
+** File:    graph_tests.cpp
+** Project: CSCE 221 Lab 7
+** Author:  Naimur S. M. Rahman & Uchenna Akahara
+** Date:    04/22/2022
+** Section: 511
+** E-mails:  naimurrah01@tamu.edu & akaharauchenna@tamu.edu
+** Description: Contains testing for the Graph ADT.
+******************************************/
+
 #include <iostream>
 #include <sstream>
 #include "graph.h"
@@ -5,14 +15,14 @@
 using std::cout, std::endl;
 
 int main()
-{ 
+{
     std::cout << "make an empty digraph" << std::endl;
     Graph G;
-    
+
     std::cout << "add vertices" << std::endl;
     for (size_t n = 1; n <= 7; n++)
     {
-        std::cout << "Count: " << G.vertex_count() << std::endl; 
+        std::cout << "Count: " << G.vertex_count() << std::endl;
         G.add_vertex(n);
     }
 
@@ -32,44 +42,44 @@ int main()
 
     std::cout << "G has " << G.vertex_count() << " vertices" << std::endl;
     std::cout << "G has " << G.edge_count() << " edges" << std::endl;
-    std::cout << "Contains Edge? " << G.contains_edge(1,2) << std::endl;
-    std::cout << "Contains Edge? " << G.contains_edge(3,1)  << std::endl;
+    std::cout << "Contains Edge? " << G.contains_edge(1, 2) << std::endl;
+    std::cout << "Contains Edge? " << G.contains_edge(3, 1) << std::endl;
     std::cout << std::endl;
-    
-    std::cout << "compute mst path from 2" <<std::endl;
+
+    std::cout << "compute mst path from 2" << std::endl;
     G.prim(2);
 
-    std::cout << "print minimum spanning paths" <<std::endl;
-    for (size_t n = 1; n <= 7; n++) {
+    std::cout << "print minimum spanning paths" << std::endl;
+    for (size_t n = 1; n <= 7; n++)
+    {
         std::cout << "minimum spanning path from 2 to " << n << std::endl;
         std::cout << "  ";
         G.print_path(n);
     }
     std::cout << std::endl;
-    
-    
-    std::cout << "compute shortest path from 2" <<std::endl;
+
+    std::cout << "compute shortest path from 2" << std::endl;
     G.dijkstra(2);
 
-    std::cout << "print shortest paths" <<std::endl;
-    for (size_t n = 1; n <= 7; n++) {
+    std::cout << "print shortest paths" << std::endl;
+    for (size_t n = 1; n <= 7; n++)
+    {
         std::cout << "shortest path from 2 to " << n << std::endl;
         std::cout << "  ";
         G.print_shortest_path(n);
     }
-    
-    
+
     // TODO(student): implement graph tests
     G.print_tree();
     G.remove_vertex(1);
-    std::cout << "Contains Edge? " << G.contains_edge(1,2) << std::endl;
+    std::cout << "Contains Edge? " << G.contains_edge(1, 2) << std::endl;
     G.remove_vertex(6);
     G.print_tree();
-    
+
     Graph G2(G);
     G2.add_vertex(1);
     G.print_tree();
-    
+
     G2.print_tree();
     std::cout << "Contains 1? " << G2.contains_vertex(1);
     std::cout << "Contains 2? " << G2.contains_vertex(2);
@@ -77,7 +87,13 @@ int main()
     G.print_tree();
     Graph G3 = G2;
     G3.print_tree();
-    
+
+    Graph G4 = G3;
+    std::cout << "Contains Infinity? " << G4.contains_vertex(INFINITY) << std::endl;
+    G4.add_vertex(55);
+    G4.contains_vertex(12);
+    G4.dijkstra(3);
+    G4.print_path(3);
+
     return 0;
-    
 }
