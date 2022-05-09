@@ -12,6 +12,7 @@ int main()
     std::cout << "add vertices" << std::endl;
     for (size_t n = 1; n <= 7; n++)
     {
+        std::cout << "Count: " << G.vertex_count() << std::endl; 
         G.add_vertex(n);
     }
 
@@ -46,7 +47,7 @@ int main()
     }
     std::cout << std::endl;
     
-    /*
+    
     std::cout << "compute shortest path from 2" <<std::endl;
     G.dijkstra(2);
 
@@ -56,7 +57,7 @@ int main()
         std::cout << "  ";
         G.print_shortest_path(n);
     }
-    */
+    
     
     // TODO(student): implement graph tests
     G.print_tree();
@@ -64,14 +65,16 @@ int main()
     std::cout << "Contains Edge? " << G.contains_edge(1,2) << std::endl;
     G.remove_vertex(6);
     G.print_tree();
-
+    
     Graph G2(G);
     G2.add_vertex(1);
+    G.print_tree();
+    /*
     G2.print_tree();
     G.print_tree();
     Graph G3 = G2;
     G3.print_tree();
-    
+    **/
     return 0;
     
 }
