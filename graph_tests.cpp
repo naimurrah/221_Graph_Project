@@ -5,10 +5,10 @@
 using std::cout, std::endl;
 
 int main()
-{
+{ 
     std::cout << "make an empty digraph" << std::endl;
     Graph G;
-
+    
     std::cout << "add vertices" << std::endl;
     for (size_t n = 1; n <= 7; n++)
     {
@@ -54,7 +54,8 @@ int main()
         std::cout << "  ";
         G.print_shortest_path(n);
     }
-   
+    
+    
     // TODO(student): implement graph tests
     G.print_tree();
     G.remove_vertex(1);
@@ -67,5 +68,7 @@ int main()
     G.print_tree();
     Graph G3 = G2;
     G3.print_tree();
+    
     return 0;
+    
 }
