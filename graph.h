@@ -50,7 +50,7 @@ private:
             }
             i++;
         }
-        return i+1;
+        return vertices.size()+1;
     }
 
     void reset_vertices() {
@@ -127,16 +127,21 @@ public:
     bool contains_edge(size_t src, size_t dest) const {
         size_t src_i = find_vertex_index(src);
         size_t dest_i = find_vertex_index(dest);
-        if (src_i >= v_count || dest_i >= v_count) {
+
+        if (src_i >= vertices.size() || dest_i >= vertices.size()) {
             return false;
         }
+
         return weights[src_i][dest_i] != 0;
     }
 
     double cost(size_t src, size_t dest) const {
+        if (!contains_edge(src, dest)) {
+            return INFINITY;
+        }
         size_t src_i = find_vertex_index(src);
         size_t dest_i = find_vertex_index(dest);
-        return weights[src_i][dest_i] != 0;
+        return weights[src_i][dest_i];
     }
 
     bool add_vertex(size_t id) {
@@ -182,8 +187,9 @@ public:
         size_t index = find_vertex_index(id);
         id_set.erase(id_set.find(id));
         for (size_t i = index; i < vertices.size() - 1; i++) {
+            weights[i] = weights[i+1];
             vertices[i] = std::move(vertices[i + 1]);
-            vertices[i]->index = vertices[i]->index - 1;
+            vertices[i]->index = i;
         }
         vertices.pop_back();
         weights.pop_back();
@@ -204,7 +210,7 @@ public:
 
         size_t src_i = find_vertex_index(src);
         size_t dest_i = find_vertex_index(dest);
-        if (src_i >= v_count || dest_i >= v_count)
+        if (src_i >= vertices.size() || dest_i >= vertices.size())
         {
             return false;
         }
@@ -252,7 +258,7 @@ public:
     }
     bool is_path(size_t id) const{
         size_t index = find_vertex_index(id);
-        if(index >= v_count){
+        if(index >= vertices.size()){
             return false;
         }
         return vertices.at(index)->distance != INFINITY;
@@ -260,6 +266,7 @@ public:
     }
 
     void print_path(size_t dest_id, std::ostream& os=std::cout) const {
+        /*
         if (!is_path(dest_id)) {
             os << "<no path>\n";
             return;
@@ -282,11 +289,13 @@ public:
         }
         tot_dist += vertices[pathway[0]]->distance;
         os << vertices[pathway[0]]->id << std::endl;
+        */
     }
 
     // Task 3
    
     void dijkstra(size_t source_id){
+        /**
         if(!contains_vertex(source_id)){
             return;
         }
@@ -315,6 +324,7 @@ public:
 
             v = vertices[min_weight()];
         }
+        **/
     }
     
     double distance(size_t id) const {
@@ -328,6 +338,7 @@ public:
     }
 
     void print_shortest_path(size_t dest_id, std::ostream& os=std::cout) const {
+        /*
         if (distance(dest_id) == (double) std::numeric_limits<int>::max()) {
             os << "<no path>\n";
             return;
@@ -344,10 +355,12 @@ public:
             os << vertices[pathway[i]]->id << " --> ";
         }
         os << vertices[pathway[0]]->id << " distance: " << vertices[pathway[0]]->distance << std::endl;
+        */
     }
     
     // helper
     void print_tree() {
+
         std::cout << "Vertices: ";
         for (size_t i = 0; i < vertices.size(); i++) {
             std::cout << vertices[i]->id << " ";
